@@ -1,69 +1,76 @@
 package main
 
-type ListNode struct {
-	Val  int
-	Next *ListNode
-}
+import (
+	"fmt"
+	"math"
+)
 
-func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
-	if getLen(l1) >= getLen(l2) {
-		l1Head := l1
-		carry := 0 //进位数
-		for l1.Next != nil && l2.Next != nil {
-			add := l1.Val + l2.Val + carry
-			carry = add / 10
-			l1.Val = add % 10
-
-			l1 = l1.Next
-			l2 = l2.Next
-		}
-
-		for carry != 0 {
-			add := l1.Val + carry
-			carry = add / 10
-			l1.Val = add % 10
-
-			l1 = l1.Next
-		}
-
-		return l1Head
-	} else {
-		l2Head := l2
-		carry := 0 //进位数
-		for l1.Next != nil && l2.Next != nil {
-			add := l1.Val + l2.Val + carry
-			carry = add / 10
-			l2.Val = add % 10
-
-			l1 = l1.Next
-			l2 = l2.Next
-		}
-
-		for carry != 0 {
-			add := l2.Val + carry
-			carry = add / 10
-			l2.Val = add % 10
-
-			l2 = l2.Next
-		}
-
-		return l2Head
+func quickSort(nums []int) []int {
+	if len(nums) <= 1 {
+		return nums
 	}
 
+	pivot := nums[0]
+	less := []int{}
+	equal := []int{pivot}
+	greater := []int{}
+
+	for _, num := range nums[1:] {
+		if num < pivot {
+			less = append(less, num)
+		} else if num > pivot {
+			greater = append(greater, num)
+		} else {
+			equal = append(equal, num)
+		}
+	}
+
+	less = quickSort(less)
+	greater = quickSort(greater)
+
+	return append(append(less, equal...), greater...)
 }
 
-func getLen(l *ListNode) int {
-	if l == nil {
+func minSubArrayLen(target int, nums []int) int {
+	total := sum(nums)
+	if total < target {
 		return 0
+	} else if total == target {
+		return len(nums)
 	}
-	count := 1
-	for l.Next != nil {
-		count++
-		l = l.Next
+
+	result := math.MaxInt32
+	slow, fast := 0, 0
+	for fast < len(nums) && slow <= fast {
+		sumOfWindow := sum(nums[slow : fast+1])
+		if sumOfWindow < target {
+			fast++
+			continue
+		}
+		result = min(result, fast+1-slow)
+		slow++
 	}
-	return count
+	return result
+}
+
+func sum(nums []int) int {
+	result := 0
+	for _, val := range nums {
+		result += val
+	}
+	return result
+}
+
+func min(a int, b int) int {
+	if a >= b {
+		return b
+	} else {
+		return a
+	}
 }
 
 func main() {
-
+	nums := []int{8}
+	target := 7
+	fmt.Println(minSubArrayLen(target, nums))
 }
